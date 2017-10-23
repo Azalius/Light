@@ -11,6 +11,8 @@ class DrawZone(Widget):
         self.evr = evr
         self.room = Room()
         self.lastLine = None
+        self.xline1 = 0
+        self.yline1 = 0
 
     def on_touch_down(self, touch):
         if self.evr.isMur:
@@ -23,21 +25,26 @@ class DrawZone(Widget):
         if self.evr.isMur:
             with self.canvas:
                 Color(1, 1, 0)
-                print(self.lastLine)
                 points = [self.xline1, self.yline1, touch.x, touch.y]
                 if self.lastLine is not None:
                     self.canvas.remove(self.lastLine)
-                self.lastLine = Line(points=points, width=5)
+                if self.xline1 is not None and touch.x is not None:
+                    self.lastLine = Line(points=points, width=5)
 
     def on_touch_up(self, touch):
-        points = [self.xline1, self.yline1, touch.x, touch.y]
-        if (self.evr.isMur):
-            mur = Mur(self.xline1, self.yline1, touch.x, touch.y)
-            self.room.walls.append(mur)
-        else:
-            self.room.lights.append(Lumiere(touch.x, touch.y))
         with self.canvas:
+            points = [self.xline1, self.yline1, touch.x, touch.y]
+            if (self.evr.isMur):
+                if (self.xline1 is not None and touch.x is not None):
+                    mur = Mur(self.xline1, self.yline1, touch.x, touch.y)
+                    self.room.walls.append(mur)
+                    Line(points=points, width=5, cap='none')
+            else:
+                self.room.lights.append(Lumiere(touch.x, touch.y))
             Color(0, 0, 1)
-            self.canvas.remove(self.lastLine)
-            Line(points=points, width=5, cap='none')
+            if self.lastLine is not None:
+                self.canvas.remove(self.lastLine)
+            self.lastLine = None
+            self.xline1 = None
+            self.yline1 = None
             print(self.evr.isMur)

@@ -7,8 +7,10 @@ class Light(Canvas):
     def __init__(self, posx, posy, width):
             i = 0
             while(i < width):
-                col = Color(1, 1, 1, .01)
+                col = Color(1, 1, 1, .02)
                 pose = (posx-(width-i)/2, posy-(width-i)/2)
                 taille = (width - i, width - i)
-                self.circles.append(Ellipse(pos=pose, size=taille, Color=col))
+                if i % 2 == 0:
+                    cir = Ellipse(pos=pose, size=taille, Color=col)
+                    self.circles.append(cir)
                 i += 1

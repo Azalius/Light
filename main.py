@@ -9,16 +9,20 @@ class Environement():
         self.isMur = True
 
 
+class EcranModification(GridLayout):
+
+    def __init__(self, **kwargs):
+        self.evr = Environement()
+        super(EcranModification, self).__init__(**kwargs)
+        self.cols = 3
+        self.add_widget(DrawZone(evr=self.evr))
+        self.add_widget(ButtonZone(evr=self.evr))
+
+
 class MyPaintApp(App):
     def build(self):
         self.title = "App"
-        self.evr = Environement()
-        parent = GridLayout(cols=2)
-        self.zoneDessin = DrawZone(self.evr)
-        self.button = ButtonZone(self.evr)
-        parent.add_widget(self.button)
-        parent.add_widget(self.zoneDessin)
-        return parent
+        return EcranModification()
 
 
 if __name__ == '__main__':
