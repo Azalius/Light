@@ -13,6 +13,18 @@ class BtnMur(Button):
 
 class ButtonZone(GridLayout):
 
+    def __init__(self, evr):
+        super(ButtonZone, self).__init__()
+        Builder.load_file('./kv/buttons.kv')
+        self.rows = 2
+        self.evr = evr
+        mur = BtnMur()
+        mur.bind(on_press=self.modeMur)
+        lum = BtnLumiere()
+        lum.bind(on_press=self.modeLumiere)
+        self.add_widget(mur)
+        self.add_widget(lum)
+
     def on_touch_down(self, touch):
         for child in self.children[:]:
             if(child.dispatch('on_touch_down', touch)):
@@ -28,20 +40,8 @@ class ButtonZone(GridLayout):
             if(child.dispatch('on_touch_move', touch)):
                 return True
 
-    def modeMur(self):
-        # self.evr.isMur = True
-        print("caca")
+    def modeMur(self, coucou):
+        self.evr.isMur = True
 
-    def modeLumiere(self):
-        # self.evr.isMur = False
-        print("coucou")
-
-    def __init__(self, evr):
-        super(ButtonZone, self).__init__()
-        Builder.load_file('./kv/buttons.kv')
-        self.cols = 2
-        self.evr = evr
-        mur = BtnMur()
-        lum = BtnLumiere()
-        self.add_widget(mur)
-        self.add_widget(lum)
+    def modeLumiere(self, coucou):
+        self.evr.isMur = False
