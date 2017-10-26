@@ -1,10 +1,10 @@
-from kivy.uix.widget import Widget
+from kivy.uix.relativelayout import RelativeLayout
 from kivy.graphics import Color, Line
 from element import Room, Mur, Lumiere
 from kivy.clock import Clock
 
 
-class DrawZone(Widget):
+class DrawZone(RelativeLayout):
 
     def __init__(self, evr):
         super(DrawZone, self).__init__()
@@ -14,34 +14,54 @@ class DrawZone(Widget):
         self.lastLine = None
         self.xline1 = 0
         self.yline1 = 0
-        actualise = Clock.schedule_interval(self.dessine, 1/10)
+        Clock.schedule_interval(self.dessine, 1/2)
 
     def dessine(self, coucou):
-        if(not self.isDrawing):
-            with self.canvas:
-                self.canvas.clear()
-                self.room.draw()
+        if(not self.isDrawing and self.room is not None):
+            # with self.canvas:
+                # self.canvas.clear()
+            toAdd = self.room.draw()
+            if toAdd is not None:
+                for elem in toAdd:
+                    add = True
+                    for widg in self.children[:]:
+                        if (elem == widg):
+                            add = False
+                    if (add is True):
+                        self.add_widget(elem)
+                        print("je dessine l'element")
 
     def on_touch_down(self, touch):
-        if self.evr.isMur:
-            with self.canvas:
-                self.xline1 = touch.x
-                self.yline1 = touch.y
+        if self.evr.shouldSelec():
+            for elem in self.children:
+                if elem.collide_point(*touch.pos):
+                    elem.manif()
+                    break
+        else:
+            if self.evr.shouldDrawWall():
+                with self.canvas:
+                    self.xline1 = touch.x
+                    self.yline1 = touch.y
+
+            elif self.evr.shouldDrawLight():
+                light = Lumiere(touch.x, touch.y)
+                self.room.lights.append(light)
 
     def on_touch_move(self, touch):
-        self.isDrawing = True
-        if self.evr.isMur:
-            with self.canvas:
-                Color(1, 1, 0)
-                points = [self.xline1, self.yline1, touch.x, touch.y]
-                if self.lastLine is not None:
-                    self.canvas.remove(self.lastLine)
-                if self.xline1 is not None and touch.x is not None:
-                    self.lastLine = Line(points=points, width=5)
+        if self.evr.shouldDrawWall():
+            self.isDrawing = True
+            if self.evr.isMur:
+                with self.canvas:
+                    Color(1, 1, 0)
+                    points = [self.xline1, self.yline1, touch.x, touch.y]
+                    if self.lastLine is not None:
+                        self.canvas.remove(self.lastLine)
+                    if self.xline1 is not None and touch.x is not None:
+                        self.lastLine = Line(points=points, width=5)
 
     def on_touch_up(self, touch):
-        self.isDrawing = False
-        with self.canvas:
+        if self.evr.shouldDrawWall():
+            self.isDrawing = False
             if (self.evr.isMur):
                 if (self.xline1 is not None and touch.x is not None):
                     mur = Mur(self.xline1, self.yline1, touch.x, touch.y)

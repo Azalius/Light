@@ -7,7 +7,28 @@ from kivy.uix.boxlayout import BoxLayout
 class Environement():
     def __init__(self, **kwargs):
         self.isMur = True
-        self.kwa = kwargs
+        self.selec = False
+
+    def changeSelecMode(self, coucou):
+        if self.selec is True:
+            self.selec = False
+        else:
+            self.selec = True
+
+    def modeMur(self, coucou):
+        self.isMur = True
+
+    def modeLumiere(self, coucou):
+        self.isMur = False
+
+    def shouldDrawWall(self):
+        return self.isMur and not self.selec
+
+    def shouldDrawLight(self):
+        return not self.isMur and not self.selec
+
+    def shouldSelec(self):
+        return self.selec
 
 
 class EcranModification(BoxLayout):

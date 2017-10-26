@@ -1,6 +1,7 @@
-from kivy.graphics import Color, Line
-from visual import Light
+from kivy.graphics import Color, Line, Ellipse
+from kivy.uix.widget import Widget
 from kivy.uix.behaviors import ButtonBehavior
+from math import sqrt
 
 
 class Room():
@@ -10,40 +11,79 @@ class Room():
         self.walls = []
 
     def draw(self):
+        aret = []
         for mur in self.walls:
-            mur.draw()
-
+            aret.append(mur.drawe())
         for lum in self.lights:
-            lum.draw()
+            aret.append(lum.drawe())
+        return aret
 
 
-class Lumiere(Light):
+class Lumiere(Widget, ButtonBehavior):
 
     def __init__(self, posx, posy):
+        super(Lumiere, self).__init__()
         self.posx = posx
         self.posy = posy
         self.color = Color(1, 1, 1)
         self.intensite = 100
+        self.larg = 20
 
-    def draw(self):
-        super(Lumiere, self).__init__(self.posx, self.posy, self.intensite)
+    def drawe(self):
+        with self.canvas:
+            Color(.6, .1, .2)
+            center = (self.posx - self.larg / 2, self.posy - self.larg / 2)
+            Ellipse(pos=center, size=(self.larg, self.larg))
+        return self
+
+    def manif(self):
+        print("manif lum appele")
+
+    def collide_point(self, x, y):
+        if sqrt(((x-self.posx)**2)+((y-self.posy)**2)) < self.larg:
+            return True
+        return False
 
 
-class Mur(Line, ButtonBehavior):
+class Mur(Widget, ButtonBehavior):
 
-    def __init__(self, ax, ay, bx, by, **kwargs):
-        super(Mur, self).__init__(**kwargs)
+    def __init__(self, ax, ay, bx, by):
+        super(Mur, self).__init__()
         self.ax = ax
         self.ay = ay
         self.bx = bx
         self.by = by
-        self.width = 5
-        self.color = Color(.8, .6, .8)
+        self.width = 150
+        self.collidewidth = 20
+        self.wallVector = [self.bx-self.ax, self.by-self.ay]
 
-    def draw(self):
-        point = [self.ax, self.ay, self.bx, self.by]
-        super(Mur, self).__init__(points=point, width=self.width, cap='none')
+    def manif(self):
+        print("manif mur appele")
 
-    def on_press(self):
-        print("coucou")
-        # return super(Mur, self).on_touch_down(touch)
+    def drawe(self):
+        with self.canvas:
+            Color(.6, .1, .2)
+            Line(points=[self.ax, self.ay, self.bx, self.by])
+        return self
+
+    def collide_point(self, x, y):
+        if ((x >= self.ax and x >= self.bx) or(x <= self.ax and x <= self.bx)):
+            return False
+        if ((y >= self.ay and y >= self.by) or(y <= self.ay and y <= self.by)):
+            return False
+        perpVector = [- self.wallVector[1], self.wallVector[0]]
+        # ax+b equation of line perp. to the wall that goes trough the touch
+        ap = perpVector[1]/perpVector[0]
+        bp = -ap*x+y
+        # print("perp equation : " + str(ap) + "x+" + str(bp))
+        # ax+b equation of the wall
+        aw = (self.by-self.ay)/(self.bx-self.ax)
+        bw = -aw*self.ax+self.ay
+        # print("equation : " + str(aw) + "x+" + str(bw))
+        # xx where the 2 points intersect in any equatin
+        xx = (bp-bw)/(aw-ap)
+        # min dist between the touch and the line
+        dist = sqrt((xx-x) ** 2 + (ap*xx+bp-y) ** 2)
+        if dist < self.collidewidth:
+            return True
+        return False

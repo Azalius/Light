@@ -3,6 +3,10 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.lang import Builder
 
 
+class BtnSelec(Button):
+    pass
+
+
 class BtnLumiere(Button):
     pass
 
@@ -19,11 +23,14 @@ class ButtonZone(GridLayout):
         self.rows = 2
         self.evr = evr
         mur = BtnMur()
-        mur.bind(on_press=self.modeMur)
+        mur.bind(on_press=self.evr.modeMur)
         lum = BtnLumiere()
-        lum.bind(on_press=self.modeLumiere)
+        lum.bind(on_press=self.evr.modeLumiere)
+        selec = BtnSelec()
+        selec.bind(on_press=self.evr.changeSelecMode)
         self.add_widget(mur)
         self.add_widget(lum)
+        self.add_widget(selec)
 
     def on_touch_down(self, touch):
         for child in self.children[:]:
@@ -39,9 +46,3 @@ class ButtonZone(GridLayout):
         for child in self.children[:]:
             if(child.dispatch('on_touch_move', touch)):
                 return True
-
-    def modeMur(self, coucou):
-        self.evr.isMur = True
-
-    def modeLumiere(self, coucou):
-        self.evr.isMur = False
