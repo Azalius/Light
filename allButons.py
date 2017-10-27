@@ -2,7 +2,8 @@ from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 from kivy.lang import Builder
 from kivy.clock import Clock
-
+from kivy.uix.spinner import Spinner
+from kivy.uix.colorpicker import ColorPicker
 
 class SelecWhatDraw(GridLayout):
 
@@ -13,33 +14,26 @@ class SelecWhatDraw(GridLayout):
         else:
             instance.background_color = (1, 1, 1, 1)
 
-    def modeMur(self, instance):
-        self.evr.modeMur(instance)
-        instance.background_color = self.evr.colorButtonSelected
-        self.lum.background_color = (1, 1, 1, 1)
-
-    def modeLumiere(self, instance):
-        self.evr.modeLumiere(instance)
-        instance.background_color = self.evr.colorButtonSelected
-        self.mur.background_color = (1, 1, 1, 1)
+    def selecElem(self, spinner, text):
+        if text == 'Mur':
+            self.evr.modeMur()
+        elif text == 'Lumiere':
+            self.evr.modeLumiere()
 
     def __init__(self, evr):
         super(SelecWhatDraw, self).__init__()
         Builder.load_file('./kv/buttons.kv')
         self.rows = 2
         self.evr = evr
-        elemDraw = GridLayout(cols=2)
-        self.mur = BtnMur()
-        self.mur.bind(on_press=self.modeMur)
-        self.lum = BtnLumiere()
-        self.lum.bind(on_press=self.modeLumiere)
         self.selec = BtnSelec()
+        elemDraw = Spinner(
+            text='Mur',
+            values=('Mur', 'Lumiere'))
+        elemDraw.bind(text=self.selecElem)
         self.selec.bind(on_press=self.changeSelecMode)
-        elemDraw.add_widget(self.mur)
-        elemDraw.add_widget(self.lum)
         self.add_widget(self.selec)
         self.add_widget(elemDraw)
-        self.modeMur(self.mur)
+        self.evr.modeMur()
         self.isInfoDisplayed = False
 
 
@@ -57,6 +51,10 @@ class Modif(GridLayout):
             self.deleteBtn.bind(on_press=self.evr.deleteElemSelec)
             self.add_widget(self.deleteBtn)
             self.isInfoDisplayed = True
+            self.clr_picker = ColorPicker()
+            self.clr_picker.bind(color=self.evr.elemSelected.changecolor)
+            self.add_widget(self.clr_picker)
+
         if self.evr.elemSelected is None and self.isInfoDisplayed is True:
             self.clear_widgets()
             self.isInfoDisplayed = False

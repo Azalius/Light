@@ -21,11 +21,11 @@ class Environement():
         else:
             self.selec = True
 
-    def modeMur(self, instance):
+    def modeMur(self):
         self.selec = False
         self.isMur = True
 
-    def modeLumiere(self, instance):
+    def modeLumiere(self):
         self.selec = False
         self.isMur = False
 

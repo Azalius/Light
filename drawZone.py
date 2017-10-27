@@ -43,6 +43,8 @@ class DrawZone(RelativeLayout):
         if self.evr.shouldSelec():
             for elem in self.children:
                 if elem.collide_point(*touch.pos):
+                    if self.evr.elemSelected is not None:
+                        self.evr.elemSelected.demanif()
                     self.evr.elemSelected = elem
                     elem.manif()
                     continu = True

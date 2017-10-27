@@ -4,6 +4,21 @@ from kivy.uix.behaviors import ButtonBehavior
 from math import sqrt
 
 
+class Selectionable(Widget):
+    def __init__(self):
+        super(Selectionable, self).__init__()
+        self.selecColor = [.8, .5, .5]
+
+    def manif(self):
+        self.color = self.selecColor
+
+    def demanif(self):
+        self.color = self.defColor
+
+    def changecolor(self, instance, value):
+        print(str(value))
+
+
 class Room():
 
     def __init__(self):
@@ -25,25 +40,24 @@ class Room():
             self.walls.remove(elem)
 
 
-class Lumiere(Widget, ButtonBehavior):
+class Lumiere(Selectionable, ButtonBehavior):
 
     def __init__(self, posx, posy):
         super(Lumiere, self).__init__()
         self.posx = posx
         self.posy = posy
-        self.color = Color(1, 1, 1)
+        self.selecColor = [.8, .5, .5]
+        self.defColor = [.6, .1, .2]
+        self.color = self.defColor
         self.intensite = 100
         self.larg = 20
 
     def drawe(self):
         with self.canvas:
-            Color(.6, .1, .2)
+            Color(self.color[0], self.color[1], self.color[2])
             center = (self.posx - self.larg / 2, self.posy - self.larg / 2)
-            Ellipse(pos=center, size=(self.larg, self.larg))
+            self.e = Ellipse(pos=center, size=(self.larg, self.larg))
         return self
-
-    def manif(self):
-        print("manif lum appele")
 
     def collide_point(self, x, y):
         if sqrt(((x-self.posx)**2)+((y-self.posy)**2)) < self.larg:
@@ -51,7 +65,7 @@ class Lumiere(Widget, ButtonBehavior):
         return False
 
 
-class Mur(Widget, ButtonBehavior):
+class Mur(Selectionable, ButtonBehavior):
 
     def __init__(self, ax, ay, bx, by):
         super(Mur, self).__init__()
@@ -61,14 +75,12 @@ class Mur(Widget, ButtonBehavior):
         self.by = by
         self.width = 150
         self.collidewidth = 20
-        self.wallVector = [self.bx-self.ax, self.by-self.ay]
-
-    def manif(self):
-        print("manif mur appele")
+        self.defColor = [.6, .1, .2]
+        self.color = self.defColor
 
     def drawe(self):
         with self.canvas:
-            Color(.6, .1, .2)
+            Color(self.color[0], self.color[1], self.color[2])
             Line(points=[self.ax, self.ay, self.bx, self.by])
         return self
 
@@ -77,7 +89,8 @@ class Mur(Widget, ButtonBehavior):
             return False
         if ((y >= self.ay and y >= self.by) or(y <= self.ay and y <= self.by)):
             return False
-        perpVector = [- self.wallVector[1], self.wallVector[0]]
+        wallVector = [self.bx-self.ax, self.by-self.ay]
+        perpVector = [- wallVector[1], wallVector[0]]
         # ax+b equation of line perp. to the wall that goes trough the touch
         ap = perpVector[1]/perpVector[0]
         bp = -ap*x+y
