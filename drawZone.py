@@ -14,7 +14,7 @@ class DrawZone(RelativeLayout):
         self.lastLine = None
         self.xline1 = 0
         self.yline1 = 0
-        Clock.schedule_interval(self.dessine, 1/2)
+        Clock.schedule_interval(self.dessine, 1/10)
 
     def dessine(self, coucou):
         if(not self.isDrawing and self.room is not None):
@@ -30,13 +30,25 @@ class DrawZone(RelativeLayout):
                     if (add is True):
                         self.add_widget(elem)
                         print("je dessine l'element")
+        if self.evr.deleteElemSelected is True:
+            if self.evr.elemSelected is not None:
+                self.remove_widget(self.evr.elemSelected)
+                self.room.remove(self.evr.elemSelected)
+                self.evr.elemSelected = None
+                print("Je retire l'element")
+            self.evr.deleteElemSelected = False
 
     def on_touch_down(self, touch):
+        continu = False
         if self.evr.shouldSelec():
             for elem in self.children:
                 if elem.collide_point(*touch.pos):
+                    self.evr.elemSelected = elem
                     elem.manif()
+                    continu = True
                     break
+            if continu is False:
+                self.evr.elemSelected = None
         else:
             if self.evr.shouldDrawWall():
                 with self.canvas:

@@ -18,6 +18,12 @@ class Room():
             aret.append(lum.drawe())
         return aret
 
+    def remove(self, elem):
+        if self.lights.count(elem) != 0:
+            self.lights.remove(elem)
+        if self.walls.count(elem) != 0:
+            self.walls.remove(elem)
+
 
 class Lumiere(Widget, ButtonBehavior):
 
