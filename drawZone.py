@@ -2,6 +2,7 @@ from kivy.uix.relativelayout import RelativeLayout
 from kivy.graphics import Color, Line
 from element import Room, Mur, Lumiere
 from kivy.clock import Clock
+from copy import deepcopy
 
 
 class DrawZone(RelativeLayout):
@@ -12,8 +13,9 @@ class DrawZone(RelativeLayout):
         self.evr = evr
         self.room = Room()
         self.lastLine = None
-        self.xline1 = 0
-        self.yline1 = 0
+        self.lastTouch = None
+        self.xline1 = None
+        self.yline1 = None
         Clock.schedule_interval(self.dessine, 1/10)
 
     def dessine(self, coucou):
@@ -41,6 +43,8 @@ class DrawZone(RelativeLayout):
     def on_touch_down(self, touch):
         continu = False
         if self.evr.shouldSelec():
+            if self.lastLine is not None:
+                self.lastLine.demanif()
             for elem in self.children:
                 if elem.collide_point(*touch.pos):
                     if self.evr.elemSelected is not None:
@@ -50,7 +54,9 @@ class DrawZone(RelativeLayout):
                     continu = True
                     break
             if continu is False:
-                self.evr.elemSelected = None
+                if self.evr.elemSelected is not None:
+                    self.evr.elemSelected.demanif()
+                    self.evr.elemSelected = None
         else:
             if self.evr.shouldDrawWall():
                 with self.canvas:
@@ -72,8 +78,18 @@ class DrawZone(RelativeLayout):
                         self.canvas.remove(self.lastLine)
                     if self.xline1 is not None and touch.x is not None:
                         self.lastLine = Line(points=points, width=5)
+        if self.evr.shouldSelec():
+            if self.evr.elemSelected is not None:
+                if self.lastTouch is not None:
+                    decalx = touch.x-self.lastTouch.x
+                    decaly = touch.y-self.lastTouch.y
+                    self.evr.elemSelected.isInterestedInMove(touch, decalx, decaly)
+                self.lastTouch = deepcopy(touch)
+
+
 
     def on_touch_up(self, touch):
+        self.lastTouch = None
         if self.evr.shouldDrawWall():
             self.isDrawing = False
             if (self.evr.isMur):

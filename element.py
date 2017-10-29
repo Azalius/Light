@@ -18,6 +18,16 @@ class Selectionable(Widget):
     def changecolor(self, instance, value):
         print(str(value))
 
+    def decaler(self, x, y):
+        pass
+
+    def isInterestedInMove(self, touch, x, y):
+        self.decaler(x, y)
+        return True
+
+    def drawe(self):
+        pass
+
 
 class Room():
 
@@ -54,6 +64,7 @@ class Lumiere(Selectionable, ButtonBehavior):
 
     def drawe(self):
         with self.canvas:
+            self.canvas.clear()
             Color(self.color[0], self.color[1], self.color[2])
             center = (self.posx - self.larg / 2, self.posy - self.larg / 2)
             self.e = Ellipse(pos=center, size=(self.larg, self.larg))
@@ -63,6 +74,10 @@ class Lumiere(Selectionable, ButtonBehavior):
         if sqrt(((x-self.posx)**2)+((y-self.posy)**2)) < self.larg:
             return True
         return False
+
+    def decaler(self, x, y):
+        self.posx += x
+        self.posy += y
 
 
 class Mur(Selectionable, ButtonBehavior):
@@ -74,14 +89,22 @@ class Mur(Selectionable, ButtonBehavior):
         self.bx = bx
         self.by = by
         self.width = 150
+        self.pointsWidth = 20
         self.collidewidth = 20
         self.defColor = [.6, .1, .2]
         self.color = self.defColor
+        self.isSelected = False
 
     def drawe(self):
         with self.canvas:
+            self.canvas.clear()
             Color(self.color[0], self.color[1], self.color[2])
             Line(points=[self.ax, self.ay, self.bx, self.by])
+            if self.isSelected:
+                center = (self.ax - self.pointsWidth / 2, self.ay - self.pointsWidth / 2)
+                Ellipse(pos=center, size=(self.pointsWidth, self.pointsWidth))
+                center = (self.bx - self.pointsWidth / 2, self.by - self.pointsWidth / 2)
+                Ellipse(pos=center, size=(self.pointsWidth, self.pointsWidth))
         return self
 
     def collide_point(self, x, y):
@@ -106,3 +129,30 @@ class Mur(Selectionable, ButtonBehavior):
         if dist < self.collidewidth:
             return True
         return False
+
+    def decaler(self, x, y):
+        self.ax += x
+        self.bx += x
+        self.ay += y
+        self.by += y
+
+    def isInterestedInMove(self, touch, x, y):
+        distanceA = sqrt((self.ax-touch.x)**2+(self.ay-touch.y)**2)
+        distanceB = sqrt((self.bx-touch.x)**2+(self.by-touch.y)**2)
+        if (distanceA < self.pointsWidth and distanceA <= distanceB):
+            self.ax += x
+            self.ay += y
+        elif (distanceB < self.pointsWidth and distanceA > distanceB):
+            self.bx += x
+            self.by += y
+        else:
+            self.decaler(x, y)
+        return True
+
+    def manif(self):
+        self.color = self.selecColor
+        self.isSelected = True
+
+    def demanif(self):
+        self.color = self.defColor
+        self.isSelected = False
