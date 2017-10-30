@@ -3,6 +3,7 @@ from kivy.graphics import Color, Line
 from element import Room, Mur, Lumiere
 from kivy.clock import Clock
 from copy import deepcopy
+from utilities import Point
 
 
 class DrawZone(RelativeLayout):
@@ -14,14 +15,11 @@ class DrawZone(RelativeLayout):
         self.room = Room()
         self.lastLine = None
         self.lastTouch = None
-        self.xline1 = None
-        self.yline1 = None
+        self.firstTouch = None
         Clock.schedule_interval(self.dessine, 1/10)
 
     def dessine(self, coucou):
         if(not self.isDrawing and self.room is not None):
-            # with self.canvas:
-                # self.canvas.clear()
             toAdd = self.room.draw()
             if toAdd is not None:
                 for elem in toAdd:
@@ -33,6 +31,7 @@ class DrawZone(RelativeLayout):
                         self.add_widget(elem)
                         print("je dessine l'element")
         if self.evr.deleteElemSelected is True:
+            print("coucou")
             if self.evr.elemSelected is not None:
                 self.remove_widget(self.evr.elemSelected)
                 self.room.remove(self.evr.elemSelected)
@@ -47,25 +46,23 @@ class DrawZone(RelativeLayout):
                 self.lastLine.demanif()
             for elem in self.children:
                 if elem.collide_point(*touch.pos):
-                    if self.evr.elemSelected is not None:
-                        self.evr.elemSelected.demanif()
+                    self.evr.deselecElem()
                     self.evr.elemSelected = elem
                     elem.manif()
                     continu = True
                     break
             if continu is False:
-                if self.evr.elemSelected is not None:
-                    self.evr.elemSelected.demanif()
-                    self.evr.elemSelected = None
+                self.evr.deselecElem()
         else:
             if self.evr.shouldDrawWall():
-                with self.canvas:
-                    self.xline1 = touch.x
-                    self.yline1 = touch.y
+                for mur in self.room.walls:
+                    touch = mur.adjustedToMatchExtremity(touch)
+                self.firstTouch = Point(touch.x, touch.y)
 
             elif self.evr.shouldDrawLight():
                 light = Lumiere(touch.x, touch.y)
                 self.room.lights.append(light)
+
 
     def on_touch_move(self, touch):
         if self.evr.shouldDrawWall():
@@ -73,10 +70,10 @@ class DrawZone(RelativeLayout):
             if self.evr.isMur:
                 with self.canvas:
                     Color(1, 1, 0)
-                    points = [self.xline1, self.yline1, touch.x, touch.y]
+                    points = [self.firstTouch.x, self.firstTouch.y, touch.x, touch.y]
                     if self.lastLine is not None:
                         self.canvas.remove(self.lastLine)
-                    if self.xline1 is not None and touch.x is not None:
+                    if self.firstTouch is not None and touch.x is not None:
                         self.lastLine = Line(points=points, width=5)
         if self.evr.shouldSelec():
             if self.evr.elemSelected is not None:
@@ -91,15 +88,16 @@ class DrawZone(RelativeLayout):
     def on_touch_up(self, touch):
         self.lastTouch = None
         if self.evr.shouldDrawWall():
+            for mur in self.room.walls:
+                touch = mur.adjustedToMatchExtremity(touch)
             self.isDrawing = False
             if (self.evr.isMur):
-                if (self.xline1 is not None and touch.x is not None):
-                    mur = Mur(self.xline1, self.yline1, touch.x, touch.y)
+                if (self.firstTouch is not None and touch.x is not None):
+                    mur = Mur(self.firstTouch.x, self.firstTouch.y, touch.x, touch.y)
                     self.room.walls.append(mur)
             else:
                 self.room.lights.append(Lumiere(touch.x, touch.y))
             if self.lastLine is not None:
                 self.canvas.remove(self.lastLine)
             self.lastLine = None
-            self.xline1 = None
-            self.yline1 = None
+            self.firstTouch = None
