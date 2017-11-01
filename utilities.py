@@ -1,5 +1,6 @@
 from math import sqrt
 
+
 class Point():
     def __init__(self, x=0, y=0):
         self.x = x
@@ -8,6 +9,7 @@ class Point():
     def dist(self, point):
         return sqrt((self.x-point.x)**2+(self.y-point.y)**2)
 
+
 class Environement():
     def __init__(self, **kwargs):
         self.isMur = True
@@ -15,6 +17,11 @@ class Environement():
         self.elemSelected = None
         self.deleteElemSelected = False
         self.colorButtonSelected = (.2, 1, 1, 1)
+        self.isLightDemo = False
+        self.hasDispLights = False
+
+    def changeRunMode(self, oth):
+        self.isLightDemo = not self.isLightDemo
 
     def deselecElem(self):
         if self.elemSelected is not None and self.deleteElemSelec is False:
@@ -25,10 +32,7 @@ class Environement():
         self.deleteElemSelected = True
 
     def changeSelecMode(self):
-        if self.selec is True:
-            self.selec = False
-        else:
-            self.selec = True
+        self.selec = not self.selec
 
     def modeMur(self):
         self.selec = False

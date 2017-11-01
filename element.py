@@ -3,6 +3,7 @@ from kivy.uix.widget import Widget
 from kivy.uix.behaviors import ButtonBehavior
 from math import sqrt
 from utilities import Point
+from visual import Light
 
 
 class Selectionable(Widget):
@@ -17,7 +18,7 @@ class Selectionable(Widget):
         self.color = self.defColor
 
     def changecolor(self, instance, value):
-        print(str(value))
+        pass
 
     def decaler(self, x, y):
         pass
@@ -60,8 +61,9 @@ class Lumiere(Selectionable, ButtonBehavior):
         self.selecColor = [.8, .5, .5]
         self.defColor = [.6, .1, .2]
         self.color = self.defColor
-        self.intensite = 100
+        self.lines = Light(self.posx, self.posy)
         self.larg = 20
+        self.lines = Light(self.posx, self.posy)
 
     def drawe(self):
         with self.canvas:
@@ -70,6 +72,10 @@ class Lumiere(Selectionable, ButtonBehavior):
             center = (self.posx - self.larg / 2, self.posy - self.larg / 2)
             self.e = Ellipse(pos=center, size=(self.larg, self.larg))
         return self
+
+    def draweLight(self):
+        with self.canvas:
+            self.lines.disp()
 
     def collide_point(self, x, y):
         if sqrt(((x-self.posx)**2)+((y-self.posy)**2)) < self.larg:

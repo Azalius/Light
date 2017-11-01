@@ -5,6 +5,7 @@ from kivy.clock import Clock
 from kivy.uix.spinner import Spinner
 from kivy.uix.colorpicker import ColorPicker
 
+
 class SelecWhatDraw(GridLayout):
 
     def changeSelecMode(self, instance):
@@ -58,6 +59,14 @@ class Modif(GridLayout):
         if self.evr.elemSelected is None and self.isInfoDisplayed is True:
             self.clear_widgets()
             self.isInfoDisplayed = False
+
+
+class RunBtn(Button):
+    def __init__(self, evr):
+        super(RunBtn, self).__init__()
+        self.evr = evr
+        self.text = "Run"
+        self.bind(on_press=self.evr.changeRunMode)
 
 
 class DeleteBtn(Button):

@@ -1,4 +1,4 @@
-from kivy.uix.relativelayout import RelativeLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.graphics import Color, Line
 from element import Room, Mur, Lumiere
 from kivy.clock import Clock
@@ -6,7 +6,7 @@ from copy import deepcopy
 from utilities import Point
 
 
-class DrawZone(RelativeLayout):
+class DrawZone(FloatLayout):
 
     def __init__(self, evr):
         super(DrawZone, self).__init__()
@@ -30,8 +30,16 @@ class DrawZone(RelativeLayout):
                     if (add is True):
                         self.add_widget(elem)
                         print("je dessine l'element")
+            if self.evr.isLightDemo and not self.evr.hasDispLights:
+                for lum in self.room.lights:
+                    print("je dessine une lumiere")
+                    lum.draweLight()
+                    self.evr.hasDispLights = True
+            if self.evr.hasDispLights and not self.evr.isLightDemo:
+                self.canvas.clear()
+                self.clear_widgets()
+                self.evr.hasDispLights = False
         if self.evr.deleteElemSelected is True:
-            print("coucou")
             if self.evr.elemSelected is not None:
                 self.remove_widget(self.evr.elemSelected)
                 self.room.remove(self.evr.elemSelected)
@@ -62,7 +70,6 @@ class DrawZone(RelativeLayout):
             elif self.evr.shouldDrawLight():
                 light = Lumiere(touch.x, touch.y)
                 self.room.lights.append(light)
-
 
     def on_touch_move(self, touch):
         if self.evr.shouldDrawWall():
