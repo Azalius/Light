@@ -10,6 +10,7 @@ class Selectionable(Widget):
     def __init__(self):
         super(Selectionable, self).__init__()
         self.selecColor = [.8, .5, .5]
+        self.isSelected = False
 
     def manif(self):
         self.color = self.selecColor
@@ -24,8 +25,10 @@ class Selectionable(Widget):
         pass
 
     def isInterestedInMove(self, touch, x, y):
-        self.decaler(x, y)
-        return True
+        if self.collide_point(touch.x, touch.y):
+            self.decaler(x, y)
+            return True
+        return False
 
     def drawe(self):
         pass
@@ -63,7 +66,6 @@ class Lumiere(Selectionable, ButtonBehavior):
         self.color = self.defColor
         self.lines = Light(self.posx, self.posy)
         self.larg = 20
-        self.lines = Light(self.posx, self.posy)
 
     def drawe(self):
         with self.canvas:
@@ -73,8 +75,9 @@ class Lumiere(Selectionable, ButtonBehavior):
             self.e = Ellipse(pos=center, size=(self.larg, self.larg))
         return self
 
-    def draweLight(self):
+    def draweLight(self, room):
         with self.canvas:
+            self.lines = Light(self.posx, self.posy, room=room)
             self.lines.disp()
 
     def collide_point(self, x, y):
@@ -85,6 +88,10 @@ class Lumiere(Selectionable, ButtonBehavior):
     def decaler(self, x, y):
         self.posx += x
         self.posy += y
+
+    def demanif(self):
+        self.color = self.defColor
+        self.isSelected = False
 
 
 class Mur(Selectionable, ButtonBehavior):
@@ -112,25 +119,56 @@ class Mur(Selectionable, ButtonBehavior):
                 Ellipse(pos=center, size=(self.pointsWidth, self.pointsWidth))
         return self
 
+    def getaxplusbEquation(self):
+        if self.b.x != self.a.x:
+            aw = (self.b.y-self.a.y)/(self.b.x-self.a.x)
+        else:
+            aw = 999999
+        bw = -aw*self.a.x+self.a.y
+        return[aw, bw]
+
+    def getVector(self):
+        vec = [self.b.x-self.a.x, self.b.y-self.a.y]
+        longVec = sqrt((vec[0]**2)+(vec[1]**2))
+        vec[0] = vec[0]/longVec
+        vec[1] = vec[1]/longVec
+        return vec
+
+    def getPerpVector(self):
+        wallVector = self.getVector()
+        return [-wallVector[1], wallVector[0]]
+
     def getNearestPointOnLine(self, point):
-        wallVector = [self.b.x-self.a.x, self.b.y-self.a.y]
-        perpVector = [- wallVector[1], wallVector[0]]
-        # ax+b equation of line perp. to the wall that goes trough the touch
+        perpVector = self.getPerpVector()
+        if perpVector[0] == 0:
+            perpVector[0] = 0.001
         ap = perpVector[1]/perpVector[0]
         bp = -ap*point.x+point.y
-        # print("perp equation : " + str(ap) + "x+" + str(bp))
-        # ax+b equation of the wall
-        aw = (self.b.y-self.a.y)/(self.b.x-self.a.x)
-        bw = -aw*self.a.x+self.a.y
-        # print("equation : " + str(aw) + "x+" + str(bw))
-        # xx where the 2 points intersect in any equatin
-        xx = (bp-bw)/(aw-ap)
+        wallEq = self.getaxplusbEquation()
+        xx = (bp-wallEq[1])/(wallEq[0]-ap)
         return Point(xx, ap*xx+bp)
 
-    def collide_point(self, x, y):
-        if ((x >= self.a.x and x >= self.b.x) or(x <= self.a.x and x <= self.b.x)):
+    def are2PointOnDifferentsSide(self, pt1, pt2):
+        if not self.isAlignedWith(pt1) or not self.isAlignedWith(pt2):
             return False
-        if ((y >= self.a.y and y >= self.b.y) or(y <= self.a.y and y <= self.b.y)):
+        eq = self.getaxplusbEquation()
+        y1 = eq[0]*pt1.x+eq[1]
+        y2 = eq[0]*pt2.x+eq[1]
+        if (y1 > pt1.y and y2 > pt2.y):
+            return False
+        if (y1 < pt1.y and y2 < pt2.y):
+            return False
+        return True
+
+    def isAlignedWith(self, pt):
+        if ((pt.x >= self.a.x and pt.x >= self.b.x) or(pt.x <= self.a.x and pt.x <= self.b.x)):
+            return False
+        if ((pt.y >= self.a.y and pt.y >= self.b.y) or(pt.y <= self.a.y and pt. y <= self.b.y)):
+            return False
+        return True
+
+    def collide_point(self, x, y):
+        if self.isAlignedWith(Point(x, y)):
             return False
         minPoint = self.getNearestPointOnLine(Point(x, y))
         dist = minPoint.dist(Point(x, y))

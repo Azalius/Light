@@ -1,10 +1,9 @@
-from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
-from kivy.lang import Builder
-from allButons import *
+from allButons import SelecWhatDraw, Modif
+from utilities import ButtonOverlay
 
 
-class ButtonZone(GridLayout):
+class ButtonZone(GridLayout, ButtonOverlay):
 
     def __init__(self, evr):
         super(ButtonZone, self).__init__()

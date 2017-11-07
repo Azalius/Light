@@ -19,7 +19,9 @@ class DrawZone(FloatLayout):
         Clock.schedule_interval(self.dessine, 1/10)
 
     def dessine(self, coucou):
-        if(not self.isDrawing and self.room is not None):
+        shouldRefresh = (self.evr.isLightDemo and not self.evr.hasDispLights)
+        shouldRefresh = shouldRefresh or not self.evr.isLightDemo
+        if(not self.isDrawing and self.room is not None and shouldRefresh):
             toAdd = self.room.draw()
             if toAdd is not None:
                 for elem in toAdd:
@@ -33,7 +35,7 @@ class DrawZone(FloatLayout):
             if self.evr.isLightDemo and not self.evr.hasDispLights:
                 for lum in self.room.lights:
                     print("je dessine une lumiere")
-                    lum.draweLight()
+                    lum.draweLight(self.room)
                     self.evr.hasDispLights = True
             if self.evr.hasDispLights and not self.evr.isLightDemo:
                 self.canvas.clear()

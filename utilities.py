@@ -1,4 +1,35 @@
-from math import sqrt
+from math import sqrt, acos
+
+
+def dotproduct(v1, v2):
+    return sum((a*b) for a, b in zip(v1, v2))
+
+
+def length(v):
+    return sqrt(dotproduct(v, v))
+
+
+def angle(v1, v2):
+    return acos(dotproduct(v1, v2) / (length(v1) * length(v2)))
+
+
+class ButtonOverlay():
+
+    def on_touch_down(self, touch):
+        for child in self.children[:]:
+            if(child.dispatch('on_touch_down', touch)):
+                self.evr.deselecElem()
+                return True
+
+    def on_touch_up(self, touch):
+        for child in self.children[:]:
+            if(child.dispatch('on_touch_up', touch)):
+                return True
+
+    def on_touch_move(self, touch):
+        for child in self.children[:]:
+            if(child.dispatch('on_touch_move', touch)):
+                return True
 
 
 class Point():
@@ -24,7 +55,7 @@ class Environement():
         self.isLightDemo = not self.isLightDemo
 
     def deselecElem(self):
-        if self.elemSelected is not None and self.deleteElemSelec is False:
+        if self.elemSelected is not None and self.deleteElemSelected is False:
             self.elemSelected.demanif()
             self.elemSelected = None
 
