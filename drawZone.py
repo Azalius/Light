@@ -1,7 +1,6 @@
 from kivy.uix.floatlayout import FloatLayout
 from kivy.graphics import Color, Line
 from element import Room, Mur, Lumiere
-from kivy.clock import Clock
 from copy import deepcopy
 from utilities import Point
 
@@ -10,15 +9,15 @@ class DrawZone(FloatLayout):
 
     def __init__(self, evr):
         super(DrawZone, self).__init__()
+        self.drawingColor=[1, 1, 0]
         self.isDrawing = False
         self.evr = evr
         self.room = Room()
         self.lastLine = None
         self.lastTouch = None
         self.firstTouch = None
-        Clock.schedule_interval(self.dessine, 1/10)
 
-    def dessine(self, coucou):
+    def dessine(self):
         shouldRefresh = (self.evr.isLightDemo and not self.evr.hasDispLights)
         shouldRefresh = shouldRefresh or not self.evr.isLightDemo
         if(not self.isDrawing and self.room is not None and shouldRefresh):
@@ -49,36 +48,44 @@ class DrawZone(FloatLayout):
                 print("Je retire l'element")
             self.evr.deleteElemSelected = False
 
+    def selecElem(self, continu, touch):
+        if self.lastLine is not None:
+            self.lastLine.demanif()
+        for elem in self.children:
+            if elem.collide_point(*touch.pos):
+                self.evr.deselecElem()
+                self.evr.elemSelected = elem
+                elem.manif()
+                continu = True
+                break
+        if continu is False:
+            self.evr.deselecElem()
+        return continu
+
+    def drawSth(self, touch):
+        if self.evr.shouldDrawWall():
+            for mur in self.room.walls:
+                touch = mur.adjustedToMatchExtremity(touch)
+            self.firstTouch = Point(touch.x, touch.y)
+        
+        elif self.evr.shouldDrawLight():
+            light = Lumiere(touch.x, touch.y)
+            self.room.lights.append(light)
+        return touch
+
     def on_touch_down(self, touch):
         continu = False
         if self.evr.shouldSelec():
-            if self.lastLine is not None:
-                self.lastLine.demanif()
-            for elem in self.children:
-                if elem.collide_point(*touch.pos):
-                    self.evr.deselecElem()
-                    self.evr.elemSelected = elem
-                    elem.manif()
-                    continu = True
-                    break
-            if continu is False:
-                self.evr.deselecElem()
+            continu = self.selecElem(continu, touch)
         else:
-            if self.evr.shouldDrawWall():
-                for mur in self.room.walls:
-                    touch = mur.adjustedToMatchExtremity(touch)
-                self.firstTouch = Point(touch.x, touch.y)
-
-            elif self.evr.shouldDrawLight():
-                light = Lumiere(touch.x, touch.y)
-                self.room.lights.append(light)
+            touch = self.drawSth(touch) 
 
     def on_touch_move(self, touch):
         if self.evr.shouldDrawWall():
             self.isDrawing = True
             if self.evr.isMur:
                 with self.canvas:
-                    Color(1, 1, 0)
+                    Color(self.drawingColor[0], self.drawingColor[1], self.drawingColor[2])
                     points = [self.firstTouch.x, self.firstTouch.y, touch.x, touch.y]
                     if self.lastLine is not None:
                         self.canvas.remove(self.lastLine)
@@ -110,3 +117,4 @@ class DrawZone(FloatLayout):
                 self.canvas.remove(self.lastLine)
             self.lastLine = None
             self.firstTouch = None
+        self.dessine()

@@ -102,7 +102,7 @@ class Mur(Selectionable, ButtonBehavior):
         self.b = Point(bx, by)
         self.width = 150
         self.pointsWidth = 20
-        self.collidewidth = 35
+        self.collidewidth = 60
         self.defColor = [.6, .1, .2]
         self.color = self.defColor
         self.isSelected = False
@@ -162,10 +162,10 @@ class Mur(Selectionable, ButtonBehavior):
 
     def isAlignedWith(self, pt):
         if ((pt.x >= self.a.x and pt.x >= self.b.x) or(pt.x <= self.a.x and pt.x <= self.b.x)):
-            return False
+            return True
         if ((pt.y >= self.a.y and pt.y >= self.b.y) or(pt.y <= self.a.y and pt. y <= self.b.y)):
-            return False
-        return True
+            return True
+        return False
 
     def collide_point(self, x, y):
         if self.isAlignedWith(Point(x, y)):
