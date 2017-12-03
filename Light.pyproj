@@ -12,7 +12,7 @@
     <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
     <InterpreterId />
-    <IsWindowsApplication>True</IsWindowsApplication>
+    <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
@@ -24,6 +24,9 @@
     <Compile Include="buttonZone.py" />
     <Compile Include="controleZone.py" />
     <Compile Include="drawZone.py" />
+    <Compile Include="drawZoneRes.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="element.py" />
     <Compile Include="main.py" />
     <Compile Include="utilities.py" />

@@ -4,6 +4,7 @@ from buttonZone import ButtonZone
 from kivy.uix.boxlayout import BoxLayout
 from utilities import Environement
 from controleZone import ControleZone
+from drawZoneRes import ScrollableDrawZone
 
 
 class EcranModification(BoxLayout):
@@ -13,7 +14,7 @@ class EcranModification(BoxLayout):
         super(EcranModification, self).__init__(**kwargs)
         controle = ControleZone(evr=self.evr)
         controle.size_hint = (.15, 1)
-        simu = DrawZone(evr=self.evr)
+        simu = ScrollableDrawZone(self.evr)
         simu.size_hint = (.7, 1)
         modif = ButtonZone(evr=self.evr)
         modif.size_hint = (.15, 1)
@@ -29,5 +30,5 @@ class MyPaintApp(App):
 
 
 if __name__ == '__main__':
-    MyPaintApp().run()
+     MyPaintApp().run()
 

@@ -7,10 +7,12 @@ from visual import Light
 
 
 class Selectionable(Widget):
-    def __init__(self):
+    def __init__(self, evr):
         super(Selectionable, self).__init__()
         self.selecColor = [.8, .5, .5]
         self.isSelected = False
+        self.size_hint = (None, None)
+        self.evr = evr
 
     def manif(self):
         self.color = self.selecColor
@@ -57,8 +59,8 @@ class Room():
 
 class Lumiere(Selectionable, ButtonBehavior):
 
-    def __init__(self, posx, posy):
-        super(Lumiere, self).__init__()
+    def __init__(self, posx, posy, evr):
+        super(Lumiere, self).__init__(evr)
         self.posx = posx
         self.posy = posy
         self.selecColor = [.8, .5, .5]
@@ -70,8 +72,9 @@ class Lumiere(Selectionable, ButtonBehavior):
     def drawe(self):
         with self.canvas:
             self.canvas.clear()
+            point = self.evr.decale(Point(self.posx, self.posy))
             Color(self.color[0], self.color[1], self.color[2])
-            center = (self.posx - self.larg / 2, self.posy - self.larg / 2)
+            center = (point.x - self.larg / 2, point.y - self.larg / 2)
             self.e = Ellipse(pos=center, size=(self.larg, self.larg))
         return self
 
@@ -96,13 +99,13 @@ class Lumiere(Selectionable, ButtonBehavior):
 
 class Mur(Selectionable, ButtonBehavior):
 
-    def __init__(self, ax, ay, bx, by):
-        super(Mur, self).__init__()
+    def __init__(self, ax, ay, bx, by, evr):
+        super(Mur, self).__init__(evr)
         self.a = Point(ax, ay)
         self.b = Point(bx, by)
         self.width = 150
         self.pointsWidth = 20
-        self.collidewidth = 60
+        self.collidewidth = 35
         self.defColor = [.6, .1, .2]
         self.color = self.defColor
         self.isSelected = False
@@ -111,11 +114,13 @@ class Mur(Selectionable, ButtonBehavior):
         with self.canvas:
             self.canvas.clear()
             Color(self.color[0], self.color[1], self.color[2])
-            Line(points=[self.a.x, self.a.y, self.b.x, self.b.y])
+            a = self.evr.decale(Point(self.a.x, self.a.y))
+            b = self.evr.decale(Point(self.b.x, self.b.y))
+            Line(points=[a.x, a.y, b.x, b.y])
             if self.isSelected:
-                center = (self.a.x - self.pointsWidth / 2, self.a.y - self.pointsWidth / 2)
+                center = (a.x - self.pointsWidth / 2, a.y - self.pointsWidth / 2)
                 Ellipse(pos=center, size=(self.pointsWidth, self.pointsWidth))
-                center = (self.b.x - self.pointsWidth / 2, self.b.y - self.pointsWidth / 2)
+                center = (b.x - self.pointsWidth / 2, b.y - self.pointsWidth / 2)
                 Ellipse(pos=center, size=(self.pointsWidth, self.pointsWidth))
         return self
 

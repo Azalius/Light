@@ -42,7 +42,7 @@ class Point():
 
 
 class Environement():
-    def __init__(self, **kwargs):
+    def __init__(self):
         self.isMur = True
         self.selec = False
         self.elemSelected = None
@@ -50,6 +50,7 @@ class Environement():
         self.colorButtonSelected = (.2, 1, 1, 1)
         self.isLightDemo = False
         self.hasDispLights = False
+        self.decal = None
 
     def changeRunMode(self, oth):
         self.isLightDemo = not self.isLightDemo
@@ -81,3 +82,8 @@ class Environement():
 
     def shouldSelec(self):
         return self.selec
+
+    def decale(self, point):
+        if self.decal is None:
+            return Point(0, 0)
+        return Point(point.x + self.decal.x, point.y + self.decal.y)
