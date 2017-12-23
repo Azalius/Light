@@ -1,4 +1,6 @@
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.widget import Widget
+from kivy.uix.button import Button
 from allButons import SelecWhatDraw, Modif
 from utilities import ButtonOverlay
 
@@ -27,3 +29,30 @@ class ButtonZone(GridLayout, ButtonOverlay):
         for child in self.children[:]:
             if(child.dispatch('on_touch_move', touch)):
                 return True
+
+
+class ScrollZone(GridLayout):
+    def __init__(self, evr):
+        super(ScrollZone, self).__init__()
+        self.evr = evr
+        self.cols = 3
+        self.rows = 3
+        self.size_hint = (.1, .1)
+        buttonCenter = Button(text="C")
+        buttonCenter.bind(on_click=self.evr.decal.reset)
+        buttonRight = Button(text="R")
+        buttonLeft = Button(text="G")
+        buttonUp = Button(text="U")
+        buttonDown = Button(text="D")
+        self.add_widget(buttonUp)
+        self.add_widget(Widget())
+        self.add_widget(Widget())
+        self.add_widget(buttonDown)
+        self.add_widget(Widget())
+        self.add_widget(Widget())
+        self.add_widget(buttonCenter)
+        self.add_widget(buttonLeft)
+        self.add_widget(buttonRight)
+
+        
+

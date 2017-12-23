@@ -86,4 +86,13 @@ class Environement():
     def decale(self, point):
         if self.decal is None:
             return Point(0, 0)
-        return Point(point.x + self.decal.x, point.y + self.decal.y)
+        ptx = (point.x) *self.decal.zoomcoef +self.decal.x
+        pty = (point.y ) * self.decal.zoomcoef + self.decal.y
+        return Point(ptx, pty)
+
+    def undecale(self, point):
+        if self.decal is None:
+            return Point(0, 0)
+        ptx =  - self.decal.x + point.x/self.decal.zoomcoef
+        pty =  - self.decal.y + point.y/self.decal.zoomcoef
+        return Point(ptx, pty)
